@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Şarkı Sözleri Getirici</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      background-color: #f0f4f7;
+    }
+    .container {
+      max-width: 600px;
+      margin-top: 50px;
+    }
+    #lyrics {
+      white-space: pre-wrap;
+      background: rgb(110, 140, 193);
+      padding: 20px;
+      border-radius: 10px;
+      min-height: 200px;
+      box-shadow: 0 0 10px rgba(64, 61, 161, 0.1);
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 class="text-center mb-4">🎵 Şarkı Sözleri Getiren Kısım</h1>
+  <form id="lyricsForm" class="text-center">
+    <div class="mb-3">
+      <input type="text" class="form-control" id="artist" placeholder="Sanatçı Adı" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" class="form-control" id="title" placeholder="Şarkı Adı" required>
+    </div>
+    <button type="submit" class="btn btn-success">Şarkı Sözleri Getir</button>
+  </form>
+
+  <div id="lyrics" class="mt-4">Şarkı sözleri burada görünür...</div>
+</div>
+
+<script>
+  $("#lyricsForm").submit(function(e) {
+    e.preventDefault();
+    const artist = $("#artist").val();
+    const title = $("#title").val();
+
+    $("#lyrics").text("Yükleniyor...");
+
+    $.ajax({
+      url: `https://api.lyrics.ovh/v1/${artist}/${title}`,
+      method: 'GET',
+      success: function(data) {
+        if (data.lyrics) {
+          const lines = data.lyrics.split('\n');
+          $("#lyrics").empty();
+
+          let index = 0;
+          const interval = setInterval(() => {
+            if (index < lines.length) {
+              $("#lyrics").append(lines[index] + '\n');
+              index++;
+            } else {
+              clearInterval(interval);
+            }
+          }, 100);
+        } else {
+          $("#lyrics").text("Şarkı sözleri maalesef bulunamadı.");
+        }
+      },
+      error: function() {
+        $("#lyrics").text("Bir hata oluştu.");
+      }
+    });
+  });
+</script>
+
+<!-- Bootstrap JS Bundle (Popper + Bootstrap) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
